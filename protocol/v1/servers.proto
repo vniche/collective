@@ -1,0 +1,121 @@
+syntax = "proto3";
+
+package me.vniche.collective.v1;
+
+option go_package = "github.com/vniche/collective/protocol/v1;serversv1";
+
+import "google/protobuf/timestamp.proto";
+
+// ChangeResponse for requests that results on a change on datastores
+message ChangeResponse {
+  // a straightforward message on the result of the request
+  string message = 1;
+}
+
+// A standard message for methods that expects an single resource unique identifier
+message ResourceIdentity {
+  // The unique name of the resource
+  string name = 1;
+}
+
+// A representation of a message to state a resource was changed
+message ResourceChange {
+  // The message to state the resource change
+  string message = 1;
+}
+
+// A representation of a resource list filter
+message ListFilter {
+  // The maximum number of resources to return. The service may return fewer than
+  // this value.
+  // If unspecified, at most 10 resources will be returned.
+  // The maximum value is 100; values above 100 result on failure.
+  int32 page_size = 1;
+
+  // A page token, received from a previous `List` call.
+  // Provide this to retrieve the subsequent page.
+  //
+  // When paginating, all other parameters provided to `List` must match
+  // the call that provided the page token.
+  int32 page_number = 2;
+}
+
+// A representation of a resource patch
+message Patch {
+  // The unique name of the resource
+  string name = 1;
+
+  // The map of changes of the resource
+  map<string, string> changes = 2;
+}
+
+// A representation of a message to state a error has occurred
+message Error {
+  // The message to state the error cause
+  string message = 1;
+}
+
+// A standard message for events streamed on Watch methods
+message Event {
+  // The unique name of the resource
+  string name = 1;
+
+  // A enumerated list of possible types of an event
+  enum Type {
+    UNKNOWN = 0;
+    REQUEST = 1;
+    EVENT = 2;
+  }
+
+  // The type of the event
+  Type type = 2;
+
+  // A enumerated list of possible actions on an event
+  enum Action {
+    NONE = 0;
+    CREATE = 1;
+    UPDATE = 2;
+    DELETE = 3;
+  }
+
+  // The action of the event
+  Action action = 3;
+
+  // The resource of the event
+  bytes resource = 4;
+}
+
+// A represention of an server
+message Server {
+  // The name of the server
+  string name = 1;
+
+  // The brief description of the server
+  string description = 2;
+
+  // A enumerated list of possible status of servers
+  enum Status {
+    UNKNOWN = 0;
+    PENDING = 1;
+    READY = 2;
+    MARKED_FOR_DELETION = 3;
+  }
+
+  // The status of the server
+  Status status = 3;
+
+  // The creation timestamp of the server
+  google.protobuf.Timestamp created_at = 4;
+
+  // The update timestamp of the server
+  google.protobuf.Timestamp updated_at = 5;
+}
+
+service Servers {
+  rpc Get(ResourceIdentity) returns (Server);
+  rpc List(ListFilter) returns (stream Server);
+  rpc Create(Server) returns (ResourceChange);
+  rpc Update(Patch) returns (ResourceChange);
+  rpc Delete(ResourceIdentity) returns (ResourceChange);
+  rpc Watch(ResourceIdentity) returns (stream Event);
+}
