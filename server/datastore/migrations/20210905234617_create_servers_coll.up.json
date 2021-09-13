@@ -1,0 +1,32 @@
+[
+    {
+        "create": "servers"
+    },
+    {
+        "createIndexes": "servers",
+        "indexes": [
+            {
+                "key": {
+                    "name": 1
+                },
+                "name": "unique_name_asc",
+                "unique": true,
+                "background": true
+            },
+            {
+                "key": {
+                    "createdat": -1
+                },
+                "name": "createdat_desc",
+                "background": true
+            },
+            {
+                "key": {
+                    "updatedat": -1
+                },
+                "name": "updatedat_desc",
+                "background": true
+            }
+        ]
+    }
+]
