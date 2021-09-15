@@ -232,6 +232,7 @@ func Start() {
 					ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 					defer cancel()
 
+					// TODO: instead of deleting instantly, updates resources with MARKED_FOR_DELETION status and produce an UPDATE EVENT
 					_, err := serversCollection.DeleteOne(ctx, bson.M{"name": identity.Name})
 					if err != nil {
 						fmt.Printf("unable to delete product on datastore: %v\n", err)
@@ -326,6 +327,8 @@ func Start() {
 						fmt.Printf("unable to commit stream consume: %v\n", err)
 					}
 				case serversv1.Event_UPDATE:
+					// TODO: on status updated to MARKED_FOR_DELETION, do necessary validations and try to delete from database
+					// on validation fail, notify and fallback to READY status
 				case serversv1.Event_DELETE:
 				default:
 					fmt.Printf("action unknown: %s\n", event.Action.String())
