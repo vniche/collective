@@ -38,6 +38,9 @@ message ListFilter {
   // When paginating, all other parameters provided to `List` must match
   // the call that provided the page token.
   int32 page_number = 2;
+
+  // Filters directly related to resource type being queried
+  map<string, string> filters = 3;
 }
 
 // A representation of a resource patch
@@ -111,9 +114,17 @@ message Server {
   google.protobuf.Timestamp updated_at = 5;
 }
 
+message PaginatedServers {
+  // The list of servers of the current page
+  repeated Server servers = 1;
+
+  // The estimated total number of servers
+  int32 total = 2;
+}
+
 service Servers {
   rpc Get(ResourceIdentity) returns (Server);
-  rpc List(ListFilter) returns (stream Server);
+  rpc List(ListFilter) returns (PaginatedServers);
   rpc Create(Server) returns (ResourceChange);
   rpc Update(Patch) returns (ResourceChange);
   rpc Delete(ResourceIdentity) returns (ResourceChange);
